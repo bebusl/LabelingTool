@@ -1,12 +1,15 @@
 import pickle
 import shutil
 import datetime
-
+from transformers import BertTokenizer
 
 def save_backup():
     suffix=datetime.datetime.now().strftime("%m%d_%H%M%S")
-    shutil.copyfile("./autoSave/autosave_labels.pickle", "./autoSave/%s_labels.pickle"%suffix)
-    shutil.copyfile("./autoSave/autosave_reviews.pickle", "./autoSave/%s_reviews.pickle"%suffix) ##새 파일 불러올때 자동 백업
+    try:
+        shutil.copyfile("./autoSave/autosave_labels.pickle", "./autoSave/%s_labels.pickle"%suffix)
+        shutil.copyfile("./autoSave/autosave_reviews.pickle", "./autoSave/%s_reviews.pickle"%suffix) ##새 파일 불러올때 자동 백업
+    except:
+        pass
 
 
 def fileLoad(path="./sample.txt"):
@@ -15,11 +18,12 @@ def fileLoad(path="./sample.txt"):
     inputFile = open(path,'rt',encoding='UTF8')
     lines = inputFile.readlines()
     for line in lines:
-        line=line.replace("\n","")
-        words=line.split(" ")
-        words=list(filter(lambda word:word!="",words))
+        line = line.replace("\n","")
+        ptr_tokenizer = BertTokenizer.from_pretrained("pretrained/vocab_snu_char16424.txt", do_lower_case=False)
+        words = ptr_tokenizer.tokenize(line)
+        words = [word.replace("#", "") for word in words]
         reviews.append(words)
-         #여기서 words를 화면에 쫘라락 보여주고, 거기서 선택할 수 있게 한 담에 result.txt에 저장시켜야 함.
+        #여기서 words를 화면에 쫘라락 보여주고, 거기서 선택할 수 있게 한 담에 result.txt에 저장시켜야 함.
     inputFile.close()
     with open('./.idx','w',encoding="UTF8") as f:
         f.write("0")
