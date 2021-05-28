@@ -14,8 +14,6 @@ NEU='T-NEU'
 NATURAL='O'
 
 
-
-
 class MyApp(QWidget):
     def __init__(self, idx=0):
         super().__init__()

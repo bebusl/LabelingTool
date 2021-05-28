@@ -3,7 +3,7 @@
 * 1. anaconda prompt 열기
 * 2. base가상환경 열기(기본으로 돼있음)
 * 3. labelingTool.py 있는 폴더로 이동하기
-* 4. mkdir autoSave하기
+* 4. *****mkdir autoSave하기**** 중요함
 * 5. python labelingTool.py로 실행(맨 처음엔 autoSave파일 없어서 2번 옵션으로 새 파일 열기부터 시작.)
 
 
