@@ -16,7 +16,7 @@ def clean(x):
     x = url_pattern.sub('', x) #url 주소 있으면 지워줌 https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*) - 의미있는거
     x = x.strip()#그걸 스페이스 바 단위로 자름.
     x = repeat_normalize(x, num_repeats=2) # 무의미하게 반복되는 것들을 정리
-    print(x)
+    #print(x)
 
     return x
 
@@ -24,7 +24,8 @@ def save_backup():
     suffix=datetime.datetime.now().strftime("%m%d_%H%M%S")
     try:
         shutil.copyfile("./autoSave/autosave_labels.pickle", "./autoSave/%s_labels.pickle"%suffix)
-        shutil.copyfile("./autoSave/autosave_reviews.pickle", "./autoSave/%s_reviews.pickle"%suffix) ##새 파일 불러올때 자동 백업
+        shutil.copyfile("./autoSave/autosave_reviews.pickle", "./autoSave/%s_reviews.pickle"%suffix)
+        shutil.copyfile("./autoSave/autosave_original.pickle", "./autoSave/%s_original.pickle"%suffix) ##새 파일 불러올때 자동 백업
     except:
         pass
 
@@ -32,6 +33,7 @@ def save_backup():
 def fileLoad(path="./sample.txt"):
     save_backup()
     reviews=[]
+    original=[]
     inputFile = open(path,'r',encoding="UTF8")
     lines = inputFile.readlines()
 
@@ -39,33 +41,36 @@ def fileLoad(path="./sample.txt"):
 
     for line in lines:
         line = clean(line.replace("\n",""))
-        print(line)
+        #print(line)
         words = tokenizer.tokenize(line)
-        print(words)
+        #print(words)
         words = [word.replace("#", "") for word in words]
+        original.append(line)
         reviews.append(words)
-        #여기서 words를 화면에 쫘라락 보여주고, 거기서 선택할 수 있게 한 담에 result.txt에 저장시켜야 함.
+
     inputFile.close()
     with open('./.idx','w',encoding="UTF8") as f:
         f.write("0")
-    return reviews
+    return original,reviews
 
 
-def saveFile(reviews,labels,path="./result.txt"):
+def saveFile(original,reviews,labels,idx,path="./result.txt"):
     reviews=reviews
     labels=labels
     outputFile=open(path,'w')
-    for idx,review in enumerate(reviews):
-        outputFile.write(' '.join(review))
+    for i in range(idx+1):
+        outputFile.write(original[i])
         outputFile.write('####')
-        for label in range(len(labels[idx])):
-            outputFile.write("%s=%s"%(review[label],labels[idx][label]))
+        for label in range(len(labels[i])):
+            outputFile.write("%s=%s"%(reviews[i][label],labels[i][label]))
         outputFile.write('\n')
 
     outputFile.close()
 
 
-def autoSave(reviews,labels,idx):
+def autoSave(original,reviews,labels,idx):
+    with open('./autoSave/autosave_original.pickle','wb') as f:
+        pickle.dump(original, f, pickle.HIGHEST_PROTOCOL)
     with open('./autoSave/autosave_reviews.pickle','wb') as f:
         pickle.dump(reviews, f, pickle.HIGHEST_PROTOCOL)
     with open('./autoSave/autosave_labels.pickle','wb') as f:
@@ -74,6 +79,8 @@ def autoSave(reviews,labels,idx):
         f.write(str(idx))
 
 def autoSaveLoad():
+    with open('./autoSave/autosave_original.pickle','rb') as f:
+        original=pickle.load(f)
     with open('./autoSave/autosave_reviews.pickle','rb') as f:
         data=pickle.load(f)
     with open('./autoSave/autosave_labels.pickle','rb') as f:
@@ -82,4 +89,4 @@ def autoSaveLoad():
     with open('./.idx','r',encoding="UTF8") as f:
         idx=int(f.readline())
 
-    return data,label,idx
+    return original,data,label,idx

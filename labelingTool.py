@@ -3,10 +3,11 @@ from PyQt5.QtWidgets import QProgressBar,QAbstractItemView,QTableWidget,QTableWi
 import PyQt5.QtCore as QtCore
 from filesaver import fileLoad, saveFile,autoSave,autoSaveLoad
 
-
+ORIGINAL_REVIEWS = []
 REVIEWS = []
 REVIEW_LABEL=[]
 REVIEWS_SIZE= 0
+RESULT_PATH='./result.txt'
 
 POS='T-POS'
 NEG='T-NEG'
@@ -82,7 +83,7 @@ class MyApp(QWidget):
     def getNextReview(self):
         self.idx+=1
         if(self.idx%5==0):
-            autoSave(REVIEWS,REVIEW_LABEL,self.idx)
+            autoSave(ORIGINAL_REVIEWS,REVIEWS,REVIEW_LABEL,self.idx)
         self.idx=self.idx%REVIEWS_SIZE
         self.pbar.setFormat("%i/%d"%(self.idx+1,self.pbar.maximum()+1))
         self.setTableWidgetData()
@@ -97,6 +98,7 @@ class MyApp(QWidget):
 
     # 리뷰 패스 - 키워드 없는 문장일 경우
     def passReview(self):
+        del ORIGINAL_REVIEWS[self.idx]
         del REVIEWS[self.idx]
         del REVIEW_LABEL[self.idx]
 
@@ -111,8 +113,8 @@ class MyApp(QWidget):
  
     # 저장 버튼 눌렀을 때 핸들러
     def saveResult(self):
-        autoSave(REVIEWS, REVIEW_LABEL,self.idx)
-        saveFile(REVIEWS, REVIEW_LABEL)
+        autoSave(ORIGINAL_REVIEWS ,REVIEWS, REVIEW_LABEL,self.idx)
+        saveFile(ORIGINAL_REVIEWS ,REVIEWS, REVIEW_LABEL,self.idx, RESULT_NAME)
 
     def setTableWidgetData(self):
         self.tableWidget.setColumnCount(len(REVIEWS[self.idx]))
@@ -145,29 +147,48 @@ def init():
     global REVIEWS
     global REVIEWS_SIZE
     global REVIEW_LABEL
+    global ORIGINAL_REVIEWS
+    global RESULT_NAME
     print("""
         1.자동 저장 파일(.pickle) 로드하기
         2.새로운 파일 열기(***경고! 새 파일을 열면 기존에 자동 저장된 내용 날아가니 백업해두는 걸 추천!!(autoSave폴더에 있는 거)****)
+
+        번호를 입력해주세요.
     """)
     select=input()
 
     if(int(select)==1):
-        REVIEWS,REVIEW_LABEL,idx=autoSaveLoad()
+        ORIGINAL_REVIEWS,REVIEWS,REVIEW_LABEL,idx=autoSaveLoad()
         REVIEWS_SIZE=len(REVIEWS)
     elif(int(select)==2):
-        print("""-------------------------------------------------
+        print("""------------------------------------------------------------------------------
         새 파일의 경로를 입력해주세요(파일 이름까지 포함, 미입력시 ./sample.txt파일을 들고 옵니다.)
         새 파일을 열면 기존에 자동 저장된 내용 날아가니 백업해두는 걸 추천!!(autoSave폴더에 있는 거)
+        ex)C:\\Users\\bbcba\\Desktop\\Project\\Labeling\\input.txt (절대경로) 
+            .\\input.txt(상대경로)
+        ------------------------------------------------------------------------------
+        파일경로:
         """)
         path=input()
-
-        REVIEWS=fileLoad(path) if len(path)!=0 else fileLoad()
+        
+        ORIGINAL_REVIEWS,REVIEWS=fileLoad(path) if len(path)!=0 else fileLoad()
         REVIEWS_SIZE= len(REVIEWS)
         for i in range(REVIEWS_SIZE):
             REVIEW_LABEL.append([NATURAL]*len(REVIEWS[i]))
         idx=0
     else:
         exit
+    print("""
+
+    ------------------------------------------------------------------------------
+    결과물을 저장할 txt파일의 이름을 정해주세요( 미입력시 ./result.txt파일로 저장)
+    !!!확장자는 따로 적어줄 필요 없음!
+    ------------------------------------------------------------------------------
+    결과파일 이름:
+    """)
+    result_name=input()
+    RESULT_NAME="./%s.txt"%result_name
+
     return idx
 
 
