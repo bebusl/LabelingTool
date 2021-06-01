@@ -7,7 +7,7 @@ ORIGINAL_REVIEWS = []
 REVIEWS = []
 REVIEW_LABEL=[]
 REVIEWS_SIZE= 0
-RESULT_PATH='./result.txt'
+RESULT_NAME='./output/result.txt'
 
 POS='T-POS'
 NEG='T-NEG'
@@ -119,6 +119,7 @@ class MyApp(QWidget):
     def setTableWidgetData(self):
         self.tableWidget.setColumnCount(len(REVIEWS[self.idx]))
         self.pbar.setValue(self.idx)
+        self.tableWidget.scrollTo(self.tableWidget.model().index(0,0))
 
         for idx, word in enumerate(REVIEWS[self.idx]):
             status=REVIEW_LABEL[self.idx][idx]
@@ -181,13 +182,14 @@ def init():
     print("""
 
     ------------------------------------------------------------------------------
-    결과물을 저장할 txt파일의 이름을 정해주세요( 미입력시 ./result.txt파일로 저장)
+    결과물을 저장할 txt파일의 이름을 정해주세요( 미입력시 ./output/result.txt파일로 저장)
     !!!확장자는 따로 적어줄 필요 없음!
     ------------------------------------------------------------------------------
     결과파일 이름:
     """)
     result_name=input()
-    RESULT_NAME="./%s.txt"%result_name
+    if(len(result_name)!=0):
+        RESULT_NAME="./output/%s.txt"%result_name
 
     return idx
 
