@@ -54,7 +54,7 @@ def fileLoad(path="./sample.txt"):
     return original,reviews
 
 
-def saveFile(original,reviews,labels,idx,path="./result.txt"):
+def saveFile(original,reviews,labels,idx,path="./output/result.txt"):
     reviews=reviews
     labels=labels
     outputFile=open(path,'w')
