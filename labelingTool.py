@@ -81,6 +81,8 @@ class MyApp(QWidget):
         return QtCore.QObject.event(source, event)
     # 다음 리뷰 불러옴
     def getNextReview(self):
+        self.tableWidget.scrollTo(self.tableWidget.model().index(0,0))
+
         self.idx+=1
         if(self.idx%5==0):
             autoSave(ORIGINAL_REVIEWS,REVIEWS,REVIEW_LABEL,self.idx)
@@ -90,6 +92,8 @@ class MyApp(QWidget):
 
     # 전 리뷰 불러옴
     def getPrevReview(self):
+        self.tableWidget.scrollTo(self.tableWidget.model().index(0,0))
+
         self.idx-=1
         self.idx=self.idx%REVIEWS_SIZE
         self.pbar.setFormat("%i/%d"%(self.idx+1,self.pbar.maximum()+1))
@@ -98,6 +102,7 @@ class MyApp(QWidget):
 
     # 리뷰 패스 - 키워드 없는 문장일 경우
     def passReview(self):
+
         del ORIGINAL_REVIEWS[self.idx]
         del REVIEWS[self.idx]
         del REVIEW_LABEL[self.idx]
@@ -107,6 +112,7 @@ class MyApp(QWidget):
         self.pbar.setMaximum(REVIEWS_SIZE-1)
         self.idx = self.idx % REVIEWS_SIZE
         self.pbar.setFormat("%i/%d" % (self.idx+1, self.pbar.maximum()+1))
+        self.tableWidget.scrollTo(self.tableWidget.model().index(0,0))
 
         self.setTableWidgetData()
 
@@ -119,7 +125,6 @@ class MyApp(QWidget):
     def setTableWidgetData(self):
         self.tableWidget.setColumnCount(len(REVIEWS[self.idx]))
         self.pbar.setValue(self.idx)
-        self.tableWidget.scrollTo(self.tableWidget.model().index(0,0))
 
         for idx, word in enumerate(REVIEWS[self.idx]):
             status=REVIEW_LABEL[self.idx][idx]
